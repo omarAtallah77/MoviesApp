@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/reposatories/person_repository.dart';
 import 'popular_people_state.dart';
 
-class PopularPeopleCubit extends Cubit<PopularPeopleState> {
+class PopularPeopleCubit extends Cubit<PeopleState> {
   final PersonRepository repo;
   static const int _firstPage = 1;
 
