@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movies_app/presentation/screens/homeLayout.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,11 +10,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const Homelayout(),
     );
   }
 }
