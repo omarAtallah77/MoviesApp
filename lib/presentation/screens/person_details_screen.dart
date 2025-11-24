@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/reposatories/person_repository.dart';
 import '../../logic/cubits/person_details_cubit.dart';
 import '../../logic/cubits/popular_people_state.dart';
+import 'image_viewer_screen.dart';
 
 class PersonDetailsScreen extends StatelessWidget {
   final int personId;
@@ -26,39 +27,43 @@ class PersonDetailsScreen extends StatelessWidget {
             final images = state.images;
             final person = state.person;
 
-            return Column(
-              children: [
-                Text(
-                  person['name'] ?? '',
-                  style: const TextStyle(fontSize: 20),
-                ),
-                Expanded(
-                  child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 4,
-                          mainAxisSpacing: 4,
-                        ),
-                    itemCount: images.length,
-                    itemBuilder: (context, index) {
-                      final path = images[index];
-                      final url = 'https://image.tmdb.org/t/p/w200$path';
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/imageViewer',
-                            arguments:
-                                'https://image.tmdb.org/t/p/original$path',
-                          );
-                        },
-                        child: Image.network(url, fit: BoxFit.cover),
-                      );
-                    },
+            return Scaffold(
+              body: Column(
+                children: [
+                  Text(
+                    person['name'] ?? '',
+                    style: const TextStyle(fontSize: 20),
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 4,
+                            mainAxisSpacing: 4,
+                          ),
+                      itemCount: images.length,
+                      itemBuilder: (context, index) {
+                        final path = images[index];
+                        final url = 'https://image.tmdb.org/t/p/w200$path';
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (BuildContext context) {
+                                  return ImageViewerScreen(imageUrl: url);
+                                },
+                              ),
+                            );
+                          },
+                          child: Image.network(url, fit: BoxFit.cover),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             );
           }
           return const SizedBox.shrink();

@@ -10,18 +10,25 @@ class PersonTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String? imageUrl = 'https://image.tmdb.org/t/p/w200${person.profilePath}';
+    if (person.profilePath == null) {
+      imageUrl = null;
+    }
+
     return InkWell(
       onTap: onTap,
       child: Row(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              "https://image.tmdb.org/t/p/w200${person.profilePath}",
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-            ),
+            child: imageUrl != null && imageUrl.isNotEmpty
+                ? Image.network(
+                    imageUrl,
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                  )
+                : Icon(Icons.broken_image, size: 80),
           ),
           const SizedBox(width: 12),
           Expanded(

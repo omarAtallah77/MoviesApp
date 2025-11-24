@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:movies_app/presentation/screens/person_details_screen.dart';
 
 import '../../logic/cubits/popular_people_cubit.dart';
 import '../../logic/cubits/popular_people_state.dart';
@@ -44,7 +45,6 @@ class _PopularPeopleScreenState extends State<PopularPeopleScreen> {
           } else if (state is PopularPeopleFailure) {
             return Center(child: Text(state.message));
           } else if (state is PopularPeopleSuccess) {
-            final people = state.people; // ✅ this is correct
             return ListView.builder(
               controller: _scrollController,
               itemCount: state.hasReachedMax
@@ -62,10 +62,13 @@ class _PopularPeopleScreenState extends State<PopularPeopleScreen> {
                 return PersonTile(
                   person: person,
                   onTap: () {
-                    Navigator.pushNamed(
+                    Navigator.push(
                       context,
-                      '/personDetails',
-                      arguments: person.id,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) {
+                          return PersonDetailsScreen(personId: person.id);
+                        },
+                      ),
                     );
                   },
                 );
