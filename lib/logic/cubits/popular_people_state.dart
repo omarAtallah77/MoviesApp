@@ -53,7 +53,7 @@ class PersonDetailsInitial extends PeopleState {}
 class PersonDetailsLoading extends PeopleState {}
 
 class PersonDetailsSuccess extends PeopleState {
-  final Map<String, dynamic> person;
+  final PersonModel person;
   final List<String> images;
 
   PersonDetailsSuccess({required this.person, required this.images});

@@ -14,9 +14,10 @@ class TMDBRemoteDataSource {
     return results.map((e) => PersonModel.fromJson(e)).toList();
   }
 
-  Future<Map<String, dynamic>> getPersonDetails(int id) async {
+  Future<PersonModel> getPersonDetails(int id) async {
     final resp = await client.get('/person/$id');
-    return resp.data as Map<String, dynamic>;
+    //return resp.data as Map<String, dynamic>;
+    return PersonModel.fromJson(resp.data);
   }
 
   Future<List<String>> getPersonImages(int id) async {

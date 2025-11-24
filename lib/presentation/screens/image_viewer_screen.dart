@@ -20,7 +20,11 @@ class ImageViewerScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(child: InteractiveViewer(child: Image.network(imageUrl))),
+      body: Center(
+        child: InteractiveViewer(
+          child: Image.network(imageUrl, fit: BoxFit.cover),
+        ),
+      ),
     );
   }
 }

@@ -1,62 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:movies_app/presentation/screens/person_details_screen.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../logic/cubits/popular_people_cubit.dart';
 import '../../logic/cubits/popular_people_state.dart';
+import '../screens/person_details_screen.dart';
 import '../widgets/personCard.dart';
 
-class PopularPeopleScreen extends StatefulWidget {
-  @override
-  _PopularPeopleScreenState createState() => _PopularPeopleScreenState();
-}
-
-class _PopularPeopleScreenState extends State<PopularPeopleScreen> {
-  final _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<PopularPeopleCubit>().fetchInitial();
-    _scrollController.addListener(_onScroll);
-  }
-
-  void _onScroll() {
-    if (_isBottom) {
-      context.read<PopularPeopleCubit>().fetchMore();
-    }
-  }
-
-  bool get _isBottom {
-    if (!_scrollController.hasClients) return false;
-    final max = _scrollController.position.maxScrollExtent;
-    final pos = _scrollController.position.pixels;
-    return pos >= (max * 0.9); // when the user reaches 90% of list
-  }
+class PopularPeopleScreen extends HookWidget {
+  const PopularPeopleScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Scroll controller created without StatefulWidget
+    final scrollController = useScrollController();
+
+    // Run once → fetch initial people
+    useEffect(() {
+      context.read<PopularPeopleCubit>().fetchInitial();
+
+      scrollController.addListener(() {
+        final max = scrollController.position.maxScrollExtent;
+        final pos = scrollController.position.pixels;
+
+        if (pos >= max * 0.9) {
+          context.read<PopularPeopleCubit>().fetchMore();
+        }
+      });
+
+      return null; // cleanup is optional here
+    }, []);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Popular People')),
       body: BlocBuilder<PopularPeopleCubit, PeopleState>(
         builder: (context, state) {
           if (state is PopularPeopleLoading) {
             return const Center(child: CircularProgressIndicator());
-          } else if (state is PopularPeopleFailure) {
+          }
+
+          if (state is PopularPeopleFailure) {
             return Center(child: Text(state.message));
-          } else if (state is PopularPeopleSuccess) {
-            return ListView.builder(
-              controller: _scrollController,
+          }
+
+          if (state is PopularPeopleSuccess) {
+            return GridView.builder(
+              addAutomaticKeepAlives: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 4,
+                mainAxisSpacing: 6,
+                childAspectRatio: 0.65,
+              ),
+              controller: scrollController,
               itemCount: state.hasReachedMax
                   ? state.people.length
                   : state.people.length + 1,
               itemBuilder: (context, index) {
                 if (index >= state.people.length) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Center(child: CircularProgressIndicator()),
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: CircularProgressIndicator(),
+                    ),
                   );
                 }
+
                 final person = state.people[index];
 
                 return PersonTile(
@@ -65,9 +74,8 @@ class _PopularPeopleScreenState extends State<PopularPeopleScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (BuildContext context) {
-                          return PersonDetailsScreen(personId: person.id);
-                        },
+                        builder: (_) =>
+                            PersonDetailsScreen(personId: person.id),
                       ),
                     );
                   },
@@ -75,15 +83,10 @@ class _PopularPeopleScreenState extends State<PopularPeopleScreen> {
               },
             );
           }
+
           return const SizedBox.shrink();
         },
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 }

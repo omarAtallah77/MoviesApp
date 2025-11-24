@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/reposatories/person_repository.dart';
 import '../../logic/cubits/person_details_cubit.dart';
 import '../../logic/cubits/popular_people_state.dart';
-import 'image_viewer_screen.dart';
+import '../widgets/component.dart';
 
 class PersonDetailsScreen extends StatelessWidget {
   final int personId;
@@ -20,52 +20,92 @@ class PersonDetailsScreen extends StatelessWidget {
       child: BlocBuilder<PersonDetailsCubit, PeopleState>(
         builder: (context, state) {
           if (state is PersonDetailsLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is PersonDetailsFailure) {
-            return Center(child: Text(state.message));
-          } else if (state is PersonDetailsSuccess) {
-            final images = state.images;
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          if (state is PersonDetailsFailure) {
+            return Scaffold(body: Center(child: Text(state.message)));
+          }
+
+          if (state is PersonDetailsSuccess) {
             final person = state.person;
+            final images = state.images;
+
+            final profileUrl = person.profilePath != null
+                ? "https://image.tmdb.org/t/p/w300${person.profilePath}"
+                : null;
 
             return Scaffold(
-              body: Column(
-                children: [
-                  Text(
-                    person['name'] ?? '',
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                  Expanded(
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 4,
-                            mainAxisSpacing: 4,
-                          ),
-                      itemCount: images.length,
-                      itemBuilder: (context, index) {
-                        final path = images[index];
-                        final url = 'https://image.tmdb.org/t/p/w200$path';
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (BuildContext context) {
-                                  return ImageViewerScreen(imageUrl: url);
-                                },
+              appBar: AppBar(
+                title: Text(person.name ?? "Person Details"),
+                centerTitle: true,
+              ),
+
+              body: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: profileUrl != null
+                            ? Image.network(
+                                profileUrl,
+                                width: 200,
+                                height: 250,
+                                fit: BoxFit.cover,
+                              )
+                            : Container(
+                                width: 200,
+                                height: 250,
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.person, size: 80),
                               ),
-                            );
-                          },
-                          child: Image.network(url, fit: BoxFit.cover),
-                        );
-                      },
+                      ),
                     ),
-                  ),
-                ],
+
+                    const SizedBox(height: 16),
+
+                    custuizedtetfield(26, person.name),
+                    custuizedtetfield(18, person.knownForDepartment),
+                    const SizedBox(height: 20),
+                    alignLeft("Biography"),
+                    const SizedBox(height: 20),
+
+                    Text(
+                      person.biography ?? "",
+                      style: const TextStyle(fontSize: 16),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    alignLeft("Images"),
+
+                    const SizedBox(height: 10),
+
+                    SizedBox(
+                      height: 160,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: images.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 10),
+                        itemBuilder: (context, index) {
+                          final path = images[index];
+                          final url = "https://image.tmdb.org/t/p/w200$path";
+
+                          return imageitem(context, url);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }
+
           return const SizedBox.shrink();
         },
       ),

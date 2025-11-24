@@ -9,8 +9,7 @@ class PersonRepository {
   Future<List<PersonModel>> getPopularPeople(int page) =>
       remote.fetchPopularPeople(page);
 
-  Future<Map<String, dynamic>> getPersonDetails(int id) =>
-      remote.getPersonDetails(id);
+  Future<PersonModel> getPersonDetails(int id) => remote.getPersonDetails(id);
 
   Future<List<String>> getPersonImages(int id) => remote.getPersonImages(id);
 }
